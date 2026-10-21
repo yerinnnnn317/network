@@ -33,6 +33,7 @@
 
    - 명령 풀이: `docker rm` 꺼진 컨테이너를 지움 · `-f` 켜져 있어도 끄고 지움 · `web` · `web-one` · `web-two` 대상 컨테이너 이름
    - 지운 결과를 봅니다. `IMAGE` 칸이 `hello-world` 인 줄만 남으면 됩니다.
+
      ```bash
      docker ps -a
      ```
@@ -606,9 +607,11 @@ docker build -t my-nginx:1 .
    - 명령 풀이: `docker run` 이미지로 컨테이너를 만들어 켬 · `-d` 백그라운드로 실행(터미널을 계속 쓸 수 있음) · `--name my-site` 컨테이너 이름 붙이기 → `my-site` · `-p 8090:80` 내 PC 8090 포트를 컨테이너 80 포트에 연결(모든 주소로 열림) · `my-nginx:1` 쓸 이미지(이름:태그)
    - 긴 영문 숫자 한 줄(컨테이너 ID)이 나오면 켜진 것입니다. 값은 PC마다 다릅니다.
    - 에러가 나면:
+
      - `Bind for 0.0.0.0:8090 failed: port is already allocated`: 8090 을 다른 컨테이너가 쓰고 있습니다. `docker ps -a` 의 `PORTS` 열에서 `8090` 이 있는 줄의 `NAMES` 를 찾아 `docker rm -f 그 이름` 으로 지우고, 방금 만든 `my-site` 도 `docker rm -f my-site` 로 지운 뒤 다시 칩니다.
      - `The container name "/my-site" is already in use`: 같은 이름의 `my-site` 가 이미 있습니다. `docker rm -f my-site` 로 지우고 다시 칩니다.
    - 켜진 서버를 봅니다. `IMAGE` 칸이 `my-nginx:1`, `STATUS` 가 `Up`, `PORTS` 가 `8090` 이어야 합니다.
+
      ```bash
      docker ps
      ```
@@ -694,6 +697,7 @@ docker build -t my-nginx:1 .
 1. **[VS Code 또는 vim]** `site-three/index.html` 의 `<h1>` 줄을 `<h1>site-three v2</h1>` 로 고쳐 저장합니다. VS Code 면 왼쪽 목록에서 `site-three/index.html` 을 열어 고치고 저장합니다. vim 이면 `vim site-three/index.html` 으로 열고 `i` → 고침 → `Esc` → `:wq` 입니다.
 2. **[브라우저]** `http://127.0.0.1:8090` 을 새로 고칩니다. 아직 제목이 **site-three** 인 것이 정상입니다(`v2` 가 안 붙음). 서버가 쓰는 파일은 이미지 안에 복사된 것이라서 내 PC의 파일을 고쳐도 바뀌지 않습니다.
 3. **[터미널]** 같은 Dockerfile 로 태그만 `2` 로 바꿔 이미지를 다시 만듭니다.
+
    ```bash
    docker build -t my-nginx:2 .
    ```
@@ -701,19 +705,23 @@ docker build -t my-nginx:1 .
    - 명령 풀이: `docker build` Dockerfile 을 읽어 이미지를 만듦 · `-t my-nginx:2` 만든 이미지에 `이름:태그` 를 붙임 · `.` 지금 폴더의 Dockerfile 을 씀
    - 화면 아래쪽에 `naming to docker.io/library/my-nginx:2` 가 보이면 성공입니다. 6-1 과 비교할 곳은 `[2/2] COPY` 줄입니다. 파일 내용이 바뀌었으므로 이번에는 앞에 `CACHED` 가 붙지 않고 새로 복사합니다.
 4. **[터미널]** 켜져 있는 서버를 지우고 `my-nginx:2` 로 다시 켭니다. `my-site` 는 `my-nginx:1` 을 쓰도록 만들어진 컨테이너라서, 새 이미지를 build 해도 쓰는 이미지가 바뀌지 않기 때문입니다.
+
    - `my-nginx:1` 로 켠 `my-site` 를 끄고 지웁니다.
+
      ```bash
      docker rm -f my-site
      ```
 
      - 명령 풀이: `docker rm` 꺼진 컨테이너를 지움 · `-f` 켜져 있어도 끄고 지움 · `my-site` 대상 컨테이너 이름
    - 지운 결과를 봅니다. `my-site` 줄이 더 이상 보이지 않습니다. 이름이 남아 있으면 바로 아래 명령에서 이름 충돌이 납니다.
+
      ```bash
      docker ps -a
      ```
 
      - 명령 풀이: `docker ps` 켜져 있는 컨테이너 목록 · `-a` 꺼진 것까지 모두
    - 새로 만든 `my-nginx:2` 이미지로 `my-site` 를 다시 켭니다. 이름 `my-site` 와 8090 번이 비어 있어서 켜집니다.
+
      ```bash
      docker run -d --name my-site -p 8090:80 my-nginx:2
      ```
@@ -721,6 +729,7 @@ docker build -t my-nginx:1 .
      - 명령 풀이: `docker run` 이미지로 컨테이너를 만들어 켬 · `-d` 백그라운드로 실행(터미널을 계속 쓸 수 있음) · `--name my-site` 컨테이너 이름 붙이기 → `my-site` · `-p 8090:80` 내 PC 8090 포트를 컨테이너 80 포트에 연결(모든 주소로 열림) · `my-nginx:2` 쓸 이미지(이름:태그)
 5. **[브라우저]** `http://127.0.0.1:8090` 을 새로 고쳐 제목이 **site-three v2** 로 바뀌었는지 확인합니다. 바뀌지 않으면 `Ctrl + F5` 로 새로 고칩니다.
 6. **[보고서]** `day07_pm_report.md` 의 `## 7교시` › `### 문제 7-1` 아래를 채웁니다.
+
    - (가) 파일을 고친 직후 새로 고침했을 때 화면에 무엇이 나왔나요?
    - (나) 🔍 파일을 고쳤는데도 화면이 바뀌지 않은 이유와, 바꾸려면 무엇을 해야 하는지 적어 주세요.
    - (다) 🔍 5교시의 `-v` 방식과 6교시의 이미지에 넣는 방식은 파일을 고쳤을 때 반영되는 방법이 어떻게 다른가요?
@@ -754,6 +763,7 @@ docker build -t my-nginx:1 .
 **순서**
 
 1. **[터미널]** v2(`my-nginx:2`)로 켜져 있는 `my-site` 를 지웁니다.
+
    ```bash
    docker rm -f my-site
    ```
@@ -761,6 +771,7 @@ docker build -t my-nginx:1 .
    - 명령 풀이: `docker rm` 컨테이너를 지움 · `-f` 켜져 있어도 끄고 지움 · `my-site` 대상 컨테이너 이름
    - 화면: `my-site`
 2. **[터미널]** 이번에는 이전 버전 `my-nginx:1` 로 `my-site` 를 켭니다.
+
    ```bash
    docker run -d --name my-site -p 8090:80 my-nginx:1
    ```
@@ -768,6 +779,7 @@ docker build -t my-nginx:1 .
    - 명령 풀이: `docker run` 이미지로 컨테이너를 만들어 켬 · `-d` 백그라운드로 실행(터미널을 계속 쓸 수 있음) · `--name my-site` 컨테이너 이름 붙이기 → `my-site` · `-p 8090:80` 내 PC 8090 포트를 컨테이너 80 포트에 연결(모든 주소로 열림) · `my-nginx:1` 쓸 이미지(이름:태그)
    - 긴 영문 숫자 한 줄(컨테이너 ID)이 나오면 켜진 것입니다. 값은 PC마다 다릅니다.
 3. **[터미널]** 켜진 서버를 봅니다. `IMAGE` 칸이 `my-nginx:1` 이어야 합니다.
+
    ```bash
    docker ps
    ```
@@ -780,6 +792,7 @@ docker build -t my-nginx:1 .
      ```
 4. **[브라우저]** `http://127.0.0.1:8090` 을 새로 고칩니다. 제목이 **site-three** 로 돌아오면(`v2` 가 안 붙으면) 이전 버전으로 되돌아온 것입니다. 안 바뀌면 `Ctrl + F5` 로 새로 고칩니다.
 5. **[터미널]** 이미지 목록을 봅니다. `my-nginx:1` 과 `my-nginx:2` 두 개가 있고, 켜진 컨테이너가 쓰는 `my-nginx:1` 에만 `U` 가 붙어 있습니다.
+
    ```bash
    docker images
    ```
@@ -794,6 +807,7 @@ docker build -t my-nginx:1 .
      nginx:1.28           146adea4768b        258MB         64.1MB
      ```
 6. **[터미널]** 쓰고 있는 `my-nginx:1` 을 지워 봅니다. 에러가 나는 것이 정상입니다.
+
    ```bash
    docker rmi my-nginx:1
    ```
@@ -805,6 +819,7 @@ docker build -t my-nginx:1 .
      ```
    - 읽는 법: `container … is using its referenced image` 는 「컨테이너 `80ea…` 가 이 이미지를 쓰고 있다」는 뜻이라 지워지지 않습니다. 컨테이너 ID 는 3번의 `docker ps` 에서 본 `my-site` 의 ID 와 같습니다.
 7. **[터미널]** 안 쓰는 `my-nginx:2` 는 지울 수 있습니다.
+
    ```bash
    docker rmi my-nginx:2
    ```
@@ -817,6 +832,7 @@ docker build -t my-nginx:1 .
      ```
    - `Untagged` 는 `my-nginx:2` 라는 이름을 뗐다는 뜻이고, `Deleted` 는 이미지 자체를 지웠다는 뜻입니다.
 8. **[터미널]** 컨테이너를 먼저 지웁니다.
+
    ```bash
    docker rm -f my-site
    ```
@@ -824,12 +840,14 @@ docker build -t my-nginx:1 .
    - 명령 풀이: `docker rm` 컨테이너를 지움 · `-f` 켜져 있어도 끄고 지움 · `my-site` 대상 컨테이너 이름
    - 화면: `my-site`
 9. **[터미널]** 지운 결과를 봅니다. `my-site` 줄이 더 이상 보이지 않아야 합니다(`hello-world` 줄은 남아 있을 수 있습니다).
+
    ```bash
    docker ps -a
    ```
 
    - 명령 풀이: `docker ps` 켜져 있는 컨테이너 목록 · `-a` 꺼진 것까지 모두
 10. **[터미널]** 이제 `my-nginx:1` 을 지웁니다.
+
     ```bash
     docker rmi my-nginx:1
     ```
@@ -841,6 +859,7 @@ docker build -t my-nginx:1 .
       Deleted: sha256:74eaeeb6495e980e4a00162158a2b219c3532639c42f9e82dd91bbac8ba75cf9
       ```
 11. **[터미널]** 이미지 목록을 다시 봅니다. `my-nginx:1` · `my-nginx:2` 줄이 모두 없어야 합니다.
+
     ```bash
     docker images
     ```
@@ -853,6 +872,7 @@ docker build -t my-nginx:1 .
       nginx:1.28           146adea4768b        258MB         64.1MB
       ```
 12. **[보고서]** `day07_pm_report.md` 의 `## 7교시` › `### 문제 7-2` 아래를 채웁니다.
+
     - (가) 이전 버전으로 되돌린 뒤 `docker ps` 의 `IMAGE` 칸 값과 브라우저에 나온 제목을 적어 주세요.
     - (나) 🔍 쓰고 있는 `my-nginx:1` 을 `docker rmi` 로 지우려 했을 때 에러 문구의 핵심과, 어떻게 해결했는지 적어 주세요.
     - (다) 🔍 이미지에 `:1` · `:2` 같은 태그를 붙여 두면 문제가 생겼을 때 어떤 점이 좋은가요?
@@ -876,12 +896,14 @@ docker build -t my-nginx:1 .
 1. **[터미널]** `security-agent-toolkit` 폴더로 옮기고 위치를 확인합니다. 결과가 `…/security-agent-toolkit` 으로 끝나야 합니다.
 
    - 두 단계 위의 `security-agent-toolkit` 폴더로 옮깁니다. `..` 은 한 단계 위 폴더입니다.
+
      ```bash
      cd ../..
      ```
 
      - 명령 풀이: `cd ../..` `../..` 로 옮겨 감 · `..` 은 한 단계 위 폴더
    - 위치를 확인합니다. `…/security-agent-toolkit` 으로 끝나야 합니다.
+
      ```bash
      pwd
      ```
@@ -903,18 +925,21 @@ docker build -t my-nginx:1 .
 4. **[터미널]** 바뀐 파일을 모두 담고(`add`), 기록하고(`commit`), 올립니다(`push`).
 
    - 바뀐 파일을 모두 올릴 목록에 담습니다.
+
      ```bash
      git add .
      ```
 
      - 명령 풀이: `git add .` 바뀐 파일을 모두 올릴 목록에 담음
    - 올릴 내용을 한 줄 설명과 함께 기록합니다.
+
      ```bash
      git commit -m "Add day 7 docker image practice and report"
      ```
 
      - 명령 풀이: `git commit -m "…"` 담은 것을 설명 한 줄과 함께 기록
    - 기록한 것을 깃허브에 올립니다.
+
      ```bash
      git push
      ```
